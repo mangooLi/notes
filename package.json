@@ -6,7 +6,7 @@
     "android": "react-native run-android",
     "android:emulator": "$ANDROID_HOME/tools/emulator -avd Nexus_5X_API_23",
     "ios": "react-native run-ios",
-    "build:android": "cd android && ./gradlew assembleRelease && cd ..",
+    "build:android": "cd android && ./gradlew assembleRelease",
     "test": "jest"
   },
   "dependencies": {

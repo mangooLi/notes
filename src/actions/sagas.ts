@@ -1,11 +1,18 @@
 import { takeEvery, call, put } from 'redux-saga/effects';
 import { Gist } from 'src/services';
 import { ActionType, Action } from 'src/typings';
+import { getTimeString } from 'src/utils';
 import { normalizeGistList } from './model';
 
-function* getGistList() {
-  const { success, data, message } = yield call(Gist.getAllGists);
+function* getGistList(action: Action) {
+  const { payload = {} } = action;
+  const { since = getTimeString('1971-01-01', 'YYYY-MM-DDTHH:MM:SSZ') } = payload;
+  const { success, data, message } = yield call(Gist.getAllGists, { since });
   if (success) {
+    if (data.length === 0) {
+      // 没有了
+      return;
+    }
     const normalizedData = normalizeGistList(data.map((gist: any) => {
       gist.files = Object.keys(gist.files).map(filename => gist.files[filename]);
       return gist;

@@ -1,6 +1,11 @@
 import { State, Action, ActionType } from 'src/typings';
 
-export default function uiReducer(state: State['ui'] = {} as any, action: Action) {
+
+const defaultUI: State['ui'] = {
+  loading: false,
+};
+
+export default function uiReducer(state: State['ui'] = defaultUI, action: Action) {
   const { type } = action;
   let newState;
   switch (type) {

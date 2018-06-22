@@ -1,15 +1,13 @@
 import * as React from 'react';
 import { Gist, State } from 'src/typings';
-import * as _moment from 'moment';
 import {
   View,
   Text,
   Image,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { getTimeString } from 'src/utils';
 import cls from './styles';
-
-const moment = (_moment as any).default || _moment;
 
 interface GistItemPorps {
   gist: Gist;
@@ -41,9 +39,9 @@ export default class GistItem extends React.Component<GistItemPorps, any> {
             <View style={cls.gistSummary}>
               <Text style={cls.gistTitle} numberOfLines={1} ellipsizeMode="tail">{gist.description}</Text>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={{ marginRight: 5, fontSize: 12, lineHeight: 12 }}>创建于{moment(gist.created_at).format('YYYY-MM-DD')}</Text>
+                <Text style={{ marginRight: 5, fontSize: 12, lineHeight: 12 }}>创建于{getTimeString(gist.created_at, 'YYYY-MM-DD')}</Text>
                 {
-                  gist.updated_at && gist.updated_at !== gist.created_at ? <Text style={{ fontSize: 12, lineHeight: 14 }}>修改于{moment(gist.updated_at).format('YYYY-MM-DD')}</Text> : null
+                  gist.updated_at && gist.updated_at !== gist.created_at ? <Text style={{ fontSize: 12, lineHeight: 14 }}>修改于{getTimeString(gist.updated_at, 'YYYY-MM-DD')}</Text> : null
                 }
               </View>
             </View>

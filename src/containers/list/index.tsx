@@ -6,10 +6,15 @@ import {
   View,
   Text,
   FlatList,
+  // BackHandler,
+  // Platform,
+  // ToastAndroid,
 } from 'react-native';
 import storage from 'src/storage';
+import { getTimeString } from 'src/utils';
 import GistItem from './gist-item';
 import cls from './styles';
+
 
 interface StateProps {
   list: string[];
@@ -23,10 +28,29 @@ interface ListProps {
 
 }
 
+// let lastBackTime = new Date();
+
 class GistList extends React.Component<StateProps & DispatchProps & ListProps & ReactNavigationProps, any> {
   static navigationOptions = {
     title: '笔记列表',
   };
+
+  // handleAndroidBack = () => {
+  //   const currentTime = new Date();
+  //   if (currentTime.getTime() - lastBackTime.getTime() < 2000) {
+  //     BackHandler.exitApp();
+  //     return true;
+  //   }
+  //   ToastAndroid.show('再此点击返回键退出', ToastAndroid.SHORT);
+  //   lastBackTime = currentTime;
+  //   return true;
+  // }
+
+  // componentWillUnmount() {
+  //   if (Platform.OS === 'android') {
+  //     BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBack);
+  //   }
+  // }
 
   async componentDidMount() {
     const { navigation } = this.props;
@@ -35,6 +59,9 @@ class GistList extends React.Component<StateProps & DispatchProps & ListProps & 
     } else {
       navigation.navigate('login');
     }
+    // if (Platform.OS === 'android') {
+    //   BackHandler.addEventListener('hardwareBackPress', this.handleAndroidBack);
+    // }
   }
 
   onItemPress = (gistId: string) => {
@@ -52,7 +79,12 @@ class GistList extends React.Component<StateProps & DispatchProps & ListProps & 
   }
 
   onRefresh = () => {
-    this.props.actions.getGistList();
+    const { list, gistData } = this.props;
+    let since = getTimeString('1971-01-01', 'YYYY-MM-DDTHH:MM:SSZ');
+    if (list.length !== 0) {
+      since = getTimeString(gistData[list[0]].updated_at, 'YYYY-MM-DDTHH:MM:SSZ');
+    }
+    this.props.actions.getGistList(since);
   }
 
   render() {
@@ -82,7 +114,7 @@ class GistList extends React.Component<StateProps & DispatchProps & ListProps & 
 interface DispatchProps {
   actions: {
     getGistList: {
-      (): Action;
+      (since?: string): Action;
     };
   };
 }
@@ -90,9 +122,11 @@ interface DispatchProps {
 function mapDispatchToProps(dispatch: Dispatch<Action>): DispatchProps {
   return {
     actions: {
-      getGistList: () => dispatch({
+      getGistList: (since?: string) => dispatch({
         type: ActionType.API_GET_GIST_LIST,
-        payload: {},
+        payload: {
+          since,
+        },
       }),
     },
   };

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import {
-  View,
-  Image,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 
 interface Props {
@@ -19,19 +18,11 @@ const cls = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  image: {
-    width: 100,
-    height: 100,
-  },
 });
 
 export default class Loading extends React.Component<Props, any> {
   render() {
     const { loading } = this.props;
-    return loading ? (
-      <View style={cls.loading}>
-        <Image style={cls.image} source={require('src/assets/loading.gif')} />
-      </View>
-    ) : null;
+    return loading ? <ActivityIndicator style={cls.loading} animating={loading} size="large" color="#999999" hidesWhenStopped={false} /> : null;
   }
 }

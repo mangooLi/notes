@@ -8,9 +8,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { State, Gist, Action, ActionType, ReactNavigationProps } from 'src/typings';
-import { Loading } from 'src/components';
 import detailSelector from 'src/selectors/detail';
 import cls from './styles';
+import { Loading } from '../../components';
 
 interface GistDetailProps {
 }

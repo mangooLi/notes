@@ -23,15 +23,22 @@ export default class LoginPage extends React.Component<ReactNavigationProps, any
 
   doLogin = () => {
     const { userName, password } = this.state;
+    const { navigation } = this.props;
     if (!userName && !password) {
-      Alert.alert('校验失败', '用户名和密码不能为空！');
+      Alert.alert('校验失败', '用户名或密码为空！是否匿名登录？', [
+        {text: '否', onPress: () => {}, style: 'cancel'},
+        {text: '是', onPress: () => {
+          storage.setItem('token', 'anonymous');
+          navigation.goBack();
+        }},
+      ],);
       return;
     }
-    const { navigation } = this.props;
+    
     Login.login(this.state.userName, this.state.password).then(token => {
       if (token) {
         storage.setItem('token', token);
-        navigation.navigate('list');
+        navigation.goBack();
       } else {
         Alert.alert('登录失败', '用户名或密码错误，请重试！');
       }

@@ -1,14 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import { Action, ActionType, State, ReactNavigationProps } from 'src/typings';
+import { Action, ActionType, State } from 'src/typings';
+import { NavigationInjectedProps } from 'react-navigation';
 import {
   View,
   Text,
   FlatList,
-  // BackHandler,
-  // Platform,
-  // ToastAndroid,
+  Alert,
 } from 'react-native';
 import storage from 'src/storage';
 import { getTimeString } from 'src/utils';
@@ -28,40 +27,32 @@ interface ListProps {
 
 }
 
-// let lastBackTime = new Date();
-
-class GistList extends React.Component<StateProps & DispatchProps & ListProps & ReactNavigationProps, any> {
+class GistList extends React.Component<StateProps & DispatchProps & ListProps & NavigationInjectedProps, any> {
   static navigationOptions = {
     title: '笔记列表',
   };
 
-  // handleAndroidBack = () => {
-  //   const currentTime = new Date();
-  //   if (currentTime.getTime() - lastBackTime.getTime() < 2000) {
-  //     BackHandler.exitApp();
-  //     return true;
-  //   }
-  //   ToastAndroid.show('再此点击返回键退出', ToastAndroid.SHORT);
-  //   lastBackTime = currentTime;
-  //   return true;
-  // }
-
-  // componentWillUnmount() {
-  //   if (Platform.OS === 'android') {
-  //     BackHandler.removeEventListener('hardwareBackPress', this.handleAndroidBack);
-  //   }
-  // }
-
   async componentDidMount() {
     const { navigation } = this.props;
-    if (await storage.getItem('token')) {
-      this.props.actions.getGistList();
+    navigation.addListener('didFocus', payload => {
+      // 从其他页面进入时，payload.lastState 不为空
+      if (this.props.list.length === 0 && payload.lastState) {
+        this.onRefresh();
+      }
+    });
+    const token = await storage.getItem('token');
+    if (token) {
+      if (token === 'anonymous') {
+        Alert.alert('登录', '检测到您为匿名登录状态，是否继续？', [
+          {text: '登录', onPress: () => navigation.navigate('login')},
+          {text: '是', onPress: () => this.onRefresh()},
+        ],);
+      } else {
+        this.onRefresh();
+      }
     } else {
       navigation.navigate('login');
     }
-    // if (Platform.OS === 'android') {
-    //   BackHandler.addEventListener('hardwareBackPress', this.handleAndroidBack);
-    // }
   }
 
   onItemPress = (gistId: string) => {
@@ -79,12 +70,12 @@ class GistList extends React.Component<StateProps & DispatchProps & ListProps & 
   }
 
   onRefresh = () => {
-    const { list, gistData } = this.props;
+    const { list, gistData, actions } = this.props;
     let since = getTimeString('1971-01-01', 'YYYY-MM-DDTHH:MM:SSZ');
     if (list.length !== 0) {
       since = getTimeString(gistData[list[0]].updated_at, 'YYYY-MM-DDTHH:MM:SSZ');
     }
-    this.props.actions.getGistList(since);
+    actions.getGistList(since);
   }
 
   render() {
